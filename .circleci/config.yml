@@ -20,6 +20,10 @@ jobs:
           name: Generate Production Build
           command: |
             npm run build
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - project/build
 
   test:
     docker:
@@ -36,6 +40,17 @@ jobs:
           name: Execute Unit Tests
           command: |
             npm run test
+
+  deploy:
+    docker:
+      - image: cimg/aws:2022.11
+    steps:
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Sync build contents with S3
+          command: |
+            aws s3 sync ~/project/build s3://$S3_BUCKET_NAME --delete
 
   scan:
     docker:
@@ -63,3 +78,7 @@ workflows:
       - scan:
           requires:
             - build
+      - deploy:
+          requires:
+            - test
+            - scan
