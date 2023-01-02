@@ -1,0 +1,60 @@
+version: 2.1
+
+jobs:
+  build:
+    docker:
+      - image: cimg/node:lts
+    steps:
+      - checkout
+      - run:
+          name: Install Node dependencies
+          command: |
+            npm install
+      - run:
+          name: Run build script
+          command: |
+            npm run build
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - project/build
+
+  test:
+    docker:
+      - image: cimg/node:lts
+    steps:
+      - checkout
+      - run:
+          name: Install Node dependencies
+          command: |
+            npm install
+      - run:
+          name: Execute unit tests
+          command: |
+            npm run test
+
+  scan:
+    docker:
+      - image: cimg/node:lts
+    steps:
+      - checkout
+      - run:
+          name: Install Node dependencies
+          command: |
+            npm install
+      - run:
+          name: Scan for critical vulnerabilities
+          command: |
+            npm run scan
+
+workflows:
+  default:
+    jobs:
+      - build
+      - test:
+          requires:
+            - build
+      - scan:
+          requires:
+            - build
+
