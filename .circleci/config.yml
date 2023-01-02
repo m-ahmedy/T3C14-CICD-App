@@ -6,10 +6,16 @@ jobs:
       - image: cimg/node:lts
     steps:
       - checkout
+      - restore_cache:
+          key: deps-{{ checksum "package-lock.json" }}
       - run:
           name: Install Node dependencies
           command: |
             npm install
+      - save_cache:
+          paths:
+            - node_modules
+          key: deps-{{ checksum "package-lock.json" }}
       - run:
           name: Run build script
           command: |
@@ -24,6 +30,8 @@ jobs:
       - image: cimg/node:lts
     steps:
       - checkout
+      - restore_cache:
+          key: deps-{{ checksum "package-lock.json" }}
       - run:
           name: Install Node dependencies
           command: |
@@ -38,6 +46,8 @@ jobs:
       - image: cimg/node:lts
     steps:
       - checkout
+      - restore_cache:
+          key: deps-{{ checksum "package-lock.json" }}
       - run:
           name: Install Node dependencies
           command: |
@@ -57,4 +67,3 @@ workflows:
       - scan:
           requires:
             - build
-
