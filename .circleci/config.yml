@@ -68,6 +68,20 @@ jobs:
           command: |
             aws s3 sync ~/project/build s3://$S3_BUCKET_NAME
 
+  verify:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - run:
+          name: Verify website endpoint
+          command: |
+            if curl -s http://$S3_WEBSITE_ENDPOINT | grep "React"
+            then
+              exit 0
+            else
+              exit 1
+            fi
+
 workflows:
   default:
     jobs:
@@ -82,3 +96,6 @@ workflows:
           requires:
             - test
             - scan
+      - verify:
+          requires:
+            - deploy
