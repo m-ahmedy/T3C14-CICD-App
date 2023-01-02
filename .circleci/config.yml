@@ -57,6 +57,17 @@ jobs:
           command: |
             npm run scan
 
+  deploy:
+    docker:
+      - image: cimg/aws:2022.11
+    steps:
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Sync build folder with S3 Bucket
+          command: |
+            aws s3 sync ~/project/build s3://$S3_BUCKET_NAME
+
 workflows:
   default:
     jobs:
@@ -67,3 +78,7 @@ workflows:
       - scan:
           requires:
             - build
+      - deploy:
+          requires:
+            - test
+            - scan
